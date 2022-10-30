@@ -1,21 +1,36 @@
 // Core
 import { useEffect } from 'react';
-
-// Global tg var
-const tg = window?.Telegram?.WebApp;
+// Packages
+import { Route, Routes } from 'react-router-dom';
+// Components
+import Form from './components/Form';
+import Header from './components/Header';
+import ProductList from './components/ProductList';
+// Hooks
+import { useTelegram } from './hooks/useTelegram';
 
 const App = () => {
+  const { tg } = useTelegram();
+
   useEffect(() => {
     tg.ready();
-  }, []);
-
-  const handleClose = (): void => {
-    tg.close();
-  };
+  }, [tg]);
 
   return (
     <div>
-      <button onClick={handleClose}>Close</button>
+      <Header />
+
+      <Routes>
+        <Route
+          index
+          element={<ProductList />}
+        />
+
+        <Route
+          path="form"
+          element={<Form />}
+        />
+      </Routes>
     </div>
   );
 };
