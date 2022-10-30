@@ -3,24 +3,20 @@ const tg = window?.Telegram?.WebApp;
 
 interface ITelegram {
   tg: any;
-  user?: any;
+  user?: {
+    username?: string;
+  };
+  queryId?: string;
   onClose: () => void;
-  onToggleButton: () => void;
 }
 
 export const useTelegram = (): ITelegram => {
-  const onClose = (): void => {
-    tg.close();
-  };
-
-  const onToggleButton = (): void => {
-    tg.MainButton.isVisible ? tg.MainButton.show() : tg.MainButton.hide();
-  };
+  const onClose = (): void => tg.close();
 
   return {
     tg,
     user: tg.initDataUnsafe?.user,
+    queryId: tg.initDataUnsafe?.query_id,
     onClose,
-    onToggleButton,
   };
 };

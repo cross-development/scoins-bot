@@ -1,12 +1,25 @@
+// Packages
+import cors from 'cors';
 import dotenv from 'dotenv';
+import express, { Response } from 'express';
 import TelegramBot from 'node-telegram-bot-api';
+// Interfaces and types
+import { IBotRequest } from './src/interfaces/bot-data.interfaces';
 
 dotenv.config();
 
-const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
-const webAppUrl = 'https://resplendent-gingersnap-5d2d3c.netlify.app';
+const port = process.env.PORT;
+const tgToken = process.env.BOT_TOKEN;
+const webAppUrl = process.env.WEB_APP_URL;
 
-bot.on('message', async msg => {
+const bot = new TelegramBot(tgToken, { polling: true });
+
+const app = express();
+
+app.use(express.json());
+app.use(cors());
+
+bot.on('message', async (msg: TelegramBot.Message) => {
   const chatId = msg.chat.id;
   const text = msg.text;
 
@@ -38,9 +51,36 @@ bot.on('message', async msg => {
       console.log(error);
     }
   }
+});
 
-  bot.sendMessage(
-    chatId,
-    `${msg.from.first_name} ${msg.from.last_name} sent you: ${msg.text}`,
-  );
+app.post('/web-data', async (req: IBotRequest, res: Response) => {
+  const { queryId, totalPrice } = req.body;
+
+  try {
+    await bot.answerWebAppQuery(queryId, {
+      type: 'article',
+      id: queryId,
+      title: 'Successful',
+      input_message_content: {
+        message_text: `You have bought $${totalPrice} worth of products`,
+      },
+    });
+
+    return res.status(200).json({});
+  } catch (error) {
+    await bot.answerWebAppQuery(queryId, {
+      type: 'article',
+      id: queryId,
+      title: 'Failure',
+      input_message_content: {
+        message_text: 'Failed to purchase products',
+      },
+    });
+
+    return res.status(400).json({});
+  }
+});
+
+app.listen(port, (): void => {
+  console.log('Server started on port ' + port);
 });

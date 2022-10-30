@@ -10,9 +10,7 @@ enum SubjectEnum {
   LEGAL = 'legal',
 }
 
-interface IProps {}
-
-const Form: FC<IProps> = props => {
+const Form: FC = () => {
   const [country, setCountry] = useState('');
   const [street, setStreet] = useState('');
   const [subject, setSubject] = useState(SubjectEnum.PHYSICAL);
@@ -42,11 +40,7 @@ const Form: FC<IProps> = props => {
   }, [tg.MainButton]);
 
   useEffect(() => {
-    if (!street || !country) {
-      tg.MainButton.hide();
-    } else {
-      tg.MainButton.show();
-    }
+    !street || !country ? tg.MainButton.hide() : tg.MainButton.show();
   }, [country, street, tg.MainButton]);
 
   const handleChangeCountry = (e: ChangeEvent<HTMLInputElement>): void => {
